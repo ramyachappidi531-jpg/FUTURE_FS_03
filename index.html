@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brew & Bliss | Luxury Cafe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --coffee: #3E2723; --cream: #FDFBF9; --phonepe: #673ab7; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: var(--cream); scroll-behavior: smooth; }
+
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 20px 8%; background: white; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .logo { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 900; color: var(--coffee); }
+        .nav-links { display: flex; list-style: none; gap: 30px; }
+        .nav-links a { text-decoration: none; color: var(--coffee); font-weight: 600; }
+
+        .hero { height: 100vh; background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1600'); background-size: cover; display: flex; align-items: center; justify-content: center; color: white; text-align: center; }
+        .main-title { font-family: 'Playfair Display', serif; font-size: 8rem; line-height: 1; }
+        .hero-subtitle { letter-spacing: 4px; margin-bottom: 20px; font-size: 0.9rem; }
+        .btn-primary { background: white; color: black; padding: 15px 40px; text-decoration: none; border-radius: 50px; font-weight: 600; display: inline-block; margin-top: 20px; }
+
+        .section { padding: 80px 8%; }
+        .section-title { text-align: center; font-family: 'Playfair Display'; font-size: 3.5rem; margin-bottom: 50px; color: var(--coffee); }
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
+
+        .item-card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.05); transition: 0.4s; text-align: center; border: 1px solid #f0f0f0; }
+        .item-card:hover { transform: translateY(-10px); }
+        .item-card img { width: 100%; height: 260px; object-fit: cover; transition: 0.6s; }
+        .item-card:hover img { transform: scale(1.1); }
+        .item-info { padding: 25px; }
+
+        .gray-bg { background: #f4f1ee; }
+        .res-card { background: white; padding: 40px; border-radius: 30px; max-width: 500px; margin: 0 auto; box-shadow: 0 15px 40px rgba(0,0,0,0.1); text-align: center; }
+        input, select { width: 100%; padding: 15px; margin: 12px 0; border: 1px solid #ddd; border-radius: 12px; font-family: 'Poppins'; }
+        .pay-btn { width: 100%; background: var(--phonepe); color: white; padding: 18px; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; }
+
+        .sidebar { position: fixed; right: -450px; top: 0; width: 400px; height: 100%; background: white; z-index: 2000; transition: 0.5s; padding: 30px; box-shadow: -10px 0 30px rgba(0,0,0,0.1); overflow-y: auto; }
+        .sidebar.active { right: 0; }
+        .cart-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
+        .checkout-btn { width: 100%; background: var(--coffee); color: white; padding: 18px; border: none; border-radius: 12px; cursor: pointer; margin-top: 20px; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo">Brew & Bliss</div>
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#menu">Menu</a></li>
+            <li><a href="#reserve">Reservation</a></li>
+            <li onclick="toggleCart()" style="cursor:pointer; font-weight:600;">🛒 Cart (<span id="cart-count">0</span>)</li>
+        </ul>
+    </nav>
+
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <p class="hero-subtitle">ESTD 2026 • ARTISANAL COFFEE</p>
+            <h1 class="main-title">Brew & Bliss</h1>
+            <a href="#menu" class="btn-primary">View Our Menu</a>
+        </div>
+    </section>
+
+    <section id="menu" class="section">
+        <h2 class="section-title">The Signature 30</h2>
+        <div class="menu-grid" id="menu-grid"></div>
+    </section>
+
+    <section id="reserve" class="section gray-bg">
+        <div class="res-card">
+            <h2 class="section-title" style="font-size: 2rem;">Book a Table</h2>
+            <form id="res-form">
+                <input type="text" id="res-name" placeholder="Enter Name" required>
+                <select id="res-table" required>
+                    <option value="" disabled selected>Table Number</option>
+                    <option value="1">Table 01 (Window)</option>
+                    <option value="2">Table 02 (Corner)</option>
+                    <option value="3">Table 03 (Lounge)</option>
+                    <option value="4">Table 04 (Outdoor)</option>
+                </select>
+                <input type="time" id="res-time" required>
+                <button type="button" class="pay-btn" onclick="handleReservationPayment()">Pay ₹500 & Confirm</button>
+            </form>
+        </div>
+    </section>
+
+    <div id="cart-sidebar" class="sidebar">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2>Your Order</h2>
+            <button onclick="toggleCart()" style="background:none; border:none; font-size:2rem; cursor:pointer;">&times;</button>
+        </div>
+        <div id="cart-items" style="margin-top:20px;"></div>
+        <div style="margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px;">
+            <h3 style="display:flex; justify-content:space-between;">Total: <span>₹<span id="cart-total">0</span></span></h3>
+            <button class="checkout-btn" onclick="checkout()">Checkout with PhonePe</button>
+        </div>
+    </div>
+<script>
+    // Corrected ID with proper quotes to prevent syntax errors
+    const MY_PHONEPE_ID = "8639862710-2@ybl"; 
+
+const menuItems = [
+    { id: 1, name: "Gold Leaf Latte", price: 280, img: "https://images.unsplash.com/photo-1541167760496-1628856ab772?w=500" },
+    { id: 2, name: "Butter Croissant", price: 150, img: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=500" },
+    { id: 3, name: "Caramel Macchiato", price: 320, img: "https://images.unsplash.com/photo-1485808191679-5f86510681a2?w=500" },
+    { id: 4, name: "Avocado Sourdough", price: 450, img: "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500" },
+    { id: 5, name: "Classic Tiramisu", price: 380, img: "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=500" },
+   { id: 6, name: "Strawberry shake", price: 240, img: "https://images.pexels.com/photos/775031/pexels-photo-775031.jpeg?auto=compress&cs=tinysrgb&w=500" },
+    { id: 7, name: "Blueberry Cake", price: 350, img: "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=500" },
+    { id: 8, name: "Matcha Ceremonial", price: 290, img: "https://images.unsplash.com/photo-1515823064-d6e0c04616a7?w=500" },
+    { id: 9, name: "classic Americano", price: 180, img: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=500&auto=format&fit=crop" },
+   { id: 10, name: "Belgian Waffle", price: 320, img: "https://images.unsplash.com/photo-1562376552-0d160a2f238d?q=80&w=500&auto=format&fit=crop" },
+    { id: 11, name: "Spanish Latte", price: 260, img: "https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=500" },
+    { id: 12, name: "Chocolate Muffin", price: 140, img: "https://images.unsplash.com/photo-1558401391-7899b4bd5bbf?w=500" },
+    { id: 13, name: "Pesto Pasta", price: 480, img: "https://images.unsplash.com/photo-1473093226795-af9932fe5856?w=500" },
+    { id: 14, name: "Red Velvet Latte", price: 310, img: "https://images.unsplash.com/photo-1611854779393-1b2da9d400fe?w=500" },
+    { id: 15, name: "Classic Sandwich", price: 290, img: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=500" },
+    { id: 16, name: "Iced Hibiscus", price: 220, img: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=500" },
+   { id: 17, name: "Mushroom mix", price: 270, img: "https://images.pexels.com/photos/3026808/pexels-photo-3026808.jpeg?auto=compress&cs=tinysrgb&w=500" },
+   { id: 18, name: "French Fries", price: 240, img: "https://images.pexels.com/photos/1583884/pexels-photo-1583884.jpeg?auto=compress&cs=tinysrgb&w=500" },
+    { id: 19, name: "Greek Salad", price: 390, img: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=500" },
+    { id: 20, name: "Rose Espresso", price: 250, img: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500" },
+    { id: 21, name: "Nutella Crepe", price: 320, img: "https://images.unsplash.com/photo-1519676867240-f03562e64548?w=500" },
+    { id: 22, name: "Iced Mocha", price: 280, img: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=500" },
+   { id: 23, name: "Samosa", price: 210, img: "https://images.unsplash.com/photo-1601050690597-df0568f70950?q=80&w=500&auto=format&fit=crop" },
+    { id: 24, name: "Lemon Tart", price: 190, img: "https://images.unsplash.com/photo-1519915028121-7d3463d20b13?w=500" },
+    { id: 25, name: "Oat Milk Flat White", price: 310, img: "https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=500" },
+    { id: 26, name: "Burger", price: 340, img: "https://images.unsplash.com/photo-1550317138-10000687a72b?w=500" },
+    { id: 27, name: "Cold Brew Nitro", price: 290, img: "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=500" },
+    { id: 28, name: "Grilled Cheese", price: 260, img: "https://images.unsplash.com/photo-1528736235302-52922df5c122?w=500" },
+    { id: 29, name: "Cortado", price: 210, img: "https://images.unsplash.com/photo-1534706936160-d5ee67737249?w=500" },
+    { id: 30, name: "Brownie Blast", price: 180, img: "https://images.unsplash.com/photo-1564355808539-22fda35bed7e?w=500" }
+];
+    let cart = [];
+function displayMenu() {
+    const grid = document.getElementById('menu-grid');
+    grid.innerHTML = menuItems.map(item => `
+        <div class="item-card">
+            <img src="${item.img}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/300x200?text=Coffee'">
+            <div class="item-info">
+                <h3>${item.name}</h3>
+                <p style="color:var(--coffee); font-weight:600; font-size:1.1rem;">₹${item.price}</p>
+                <button class="pay-btn" style="margin-top:10px; background:var(--coffee); padding:10px;" onclick="addToCart(${item.id})">Add to Cart</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+    function addToCart(id) {
+        const item = menuItems.find(i => i.id === id);
+        cart.push(item);
+        updateCart();
+        document.getElementById('cart-sidebar').classList.add('active');
+    }
+
+    function updateCart() {
+        document.getElementById('cart-count').innerText = cart.length;
+        const total = cart.reduce((sum, item) => sum + item.price, 0);
+        document.getElementById('cart-total').innerText = total;
+        document.getElementById('cart-items').innerHTML = cart.map((item, index) => `
+            <div class="cart-item">
+                <span>${item.name}</span>
+                <span>₹${item.price} <button onclick="removeFromCart(${index})" style="border:none; background:none; cursor:pointer">❌</button></span>
+            </div>
+        `).join('');
+    }
+
+    function removeFromCart(index) { cart.splice(index, 1); updateCart(); }
+    function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('active'); }
+
+    function checkout() {
+        const total = cart.reduce((sum, item) => sum + item.price, 0);
+        if(total === 0) return alert("Your cart is empty!");
+        alert("Order Received! Redirecting to PhonePe for secure payment of ₹" + total);
+        window.location.href = `upi://pay?pa=${'8639862710-2@ybl'}&pn=BrewBliss&am=${total}&cu=INR&tn=Order_Checkout`;
+    }
+
+    function handleReservationPayment() {
+        const name = document.getElementById('res-name').value;
+        const table = document.getElementById('res-table').value;
+        const time = document.getElementById('res-time').value;
+        if(!name || !table || !time) return alert("Please fill all reservation details.");
+        alert("Table " + table + " Registration Confirmed for " + name + "! Proceeding to deposit payment.");
+        window.location.href = `upi://pay?pa=${'8639862710-2@ybl'}&pn=BrewBliss&am=500&cu=INR&tn=Table_${table}_Booking_${name}`;
+    }
+
+    window.onload = displayMenu;
+</script>
+   
+</body>
+</html>
